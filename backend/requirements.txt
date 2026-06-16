@@ -1,0 +1,7 @@
+fastapi==0.109.2
+uvicorn==0.27.1
+pydantic==2.6.1
+google-generativeai==0.4.0
+python-multipart==0.0.9 # Thư viện bắt buộc để FastAPI nhận file (Audio)
+supabase==2.3.4
+python-dotenv==1.0.1
