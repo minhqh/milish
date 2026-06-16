@@ -1,5 +1,17 @@
 import { useState, useRef } from 'react';
 
+// Định nghĩa Interface dữ liệu
+interface GrammarMistake {
+  original: string;
+  corrected: string;
+}
+
+interface GradingResult {
+  total_score: number;
+  grammar_mistakes: GrammarMistake[];
+  suggested_vocab: string[];
+}
+
 interface SpeakingWorkspaceProps {
   question: string;
 }
@@ -8,48 +20,42 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   
-  // Ref để giữ instance của MediaRecorder mà không làm re-render component
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<GradingResult | null>(null);
+  
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
 
-  // Hàm bắt đầu ghi âm
   const startRecording = async () => {
     try {
-      // Xin quyền truy cập Micro
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
 
       mediaRecorder.onstop = () => {
-        // Gom các mảnh âm thanh lại thành 1 file hoàn chỉnh
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const url = URL.createObjectURL(blob);
         setAudioBlob(blob);
         setAudioUrl(url);
-        
-        // Tắt micro để phần cứng không bị treo
         stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
       setIsRecording(true);
-      setAudioUrl(null); // Xóa file cũ nếu thu lại
+      setAudioUrl(null);
+      setResult(null); // Reset kết quả cũ nếu thu âm lại
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      console.error(error);
       alert("Không thể truy cập Micro. Vui lòng kiểm tra quyền trên trình duyệt!");
     }
   };
 
-  // Hàm dừng ghi âm
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
@@ -57,25 +63,49 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
     }
   };
 
-  // Hàm (tạm) để gọi API nộp bài sau này
   const handleSubmit = async () => {
     if (!audioBlob) return;
+
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      alert("Bạn chưa nhập API Key! Vui lòng tải lại trang để nhập.");
+      return;
+    }
+
     setIsLoading(true);
-    console.log("Chuẩn bị gửi file Audio lên Backend...", audioBlob);
-    // Tạm thời fake delay, sẽ ghép API vào bài sau
-    setTimeout(() => {
-      alert("Chức năng nộp bài đang được xây dựng!");
+    try {
+      // Vì gửi file nên phải dùng FormData thay vì JSON
+      const formData = new FormData();
+      formData.append('api_key', apiKey);
+      formData.append('question', question);
+      // Trình duyệt tự sinh Blob, ta cần gán tên file để Backend nhận diện dạng UploadFile
+      formData.append('file', audioBlob, 'speaking_record.webm');
+
+      // Fetch API tự động cấu hình Content-Type là multipart/form-data khi nhận FormData
+      const response = await fetch('http://localhost:8000/api/speaking/grade', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Lỗi từ server: " + response.statusText);
+      }
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error(error);
+      alert("Có lỗi xảy ra khi chấm bài. Vui lòng thử lại!");
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="w-full flex flex-col gap-6 mt-8 max-w-3xl mx-auto items-center">
       
-      {/* Khu vực trạng thái & Nút thu âm */}
+      {/* Vùng ghi âm */}
       <div className="bg-white border border-gray-200 rounded-2xl p-8 w-full shadow-sm flex flex-col items-center gap-6">
-        
-        {/* Hiệu ứng sóng âm khi đang thu */}
         <div className={`h-24 flex items-center justify-center ${isRecording ? 'animate-pulse' : ''}`}>
           {isRecording ? (
             <div className="flex items-center gap-2">
@@ -89,12 +119,12 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
           )}
         </div>
 
-        {/* Cụm Nút bấm */}
         <div className="flex gap-4">
           {!isRecording ? (
             <button 
               onClick={startRecording}
-              className="px-8 py-3 bg-red-50 text-red-600 border border-red-200 font-bold rounded-full hover:bg-red-100 transition flex items-center gap-2"
+              disabled={isLoading}
+              className="px-8 py-3 bg-red-50 text-red-600 border border-red-200 font-bold rounded-full hover:bg-red-100 disabled:opacity-50 transition flex items-center gap-2"
             >
               🔴 Start Recording
             </button>
@@ -108,7 +138,6 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
           )}
         </div>
 
-        {/* Trình phát lại âm thanh */}
         {audioUrl && !isRecording && (
           <div className="w-full mt-4 bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col gap-3 items-center">
             <span className="text-sm font-medium text-gray-600">Review your answer:</span>
@@ -117,8 +146,8 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
         )}
       </div>
 
-      {/* Nút Submit */}
-      {audioUrl && !isRecording && (
+      {/* Nút Nộp Bài */}
+      {audioUrl && !isRecording && !result && (
          <button 
            onClick={handleSubmit}
            disabled={isLoading}
@@ -128,6 +157,49 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
          </button>
       )}
 
+      {/* Khung kết quả AI Feedback */}
+      {result && (
+        <div className="mt-4 bg-white border border-gray-200 rounded-xl p-6 shadow-sm animate-fade-in w-full">
+          <div className="flex items-center gap-4 mb-6 border-b pb-4">
+            <div className="bg-blue-100 text-blue-700 text-3xl font-black px-4 py-2 rounded-lg">
+              {result.total_score} / 5
+            </div>
+            <div>
+              <h4 className="text-xl font-bold text-gray-800">AI Feedback</h4>
+              <p className="text-gray-500 text-sm">Graded by Gemini 2.5 Flash Audio Model</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h5 className="font-bold text-red-600 mb-3 flex items-center gap-2">
+                🎤 Pronunciation & Grammar Issues
+              </h5>
+              <ul className="space-y-3">
+                {result.grammar_mistakes.map((mistake, index) => (
+                  <li key={index} className="bg-red-50 p-3 rounded border border-red-100 text-sm">
+                    <div className="line-through text-red-400 mb-1">{mistake.original}</div>
+                    <div className="text-green-700 font-medium">{mistake.corrected}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h5 className="font-bold text-blue-600 mb-3 flex items-center gap-2">
+                💡 Suggested Expressions
+              </h5>
+              <div className="flex flex-wrap gap-2">
+                {result.suggested_vocab.map((vocab, index) => (
+                  <span key={index} className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full text-sm font-medium">
+                    {vocab}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

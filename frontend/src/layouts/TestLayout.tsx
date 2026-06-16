@@ -20,7 +20,7 @@ export default function TestLayout({ children }: TestLayoutProps) {
           <span className="text-gray-500 font-medium hidden sm:inline">| TOEIC Speaking & Writing</span>
         </div>
         
-        <CountdownTimer initialSeconds={150} onTimeUp={handleTimeUp} />
+        <CountdownTimer initialSeconds={60} onTimeUp={handleTimeUp} />
 
         <div className="text-sm font-medium text-gray-600">
           Candidate: <span className="font-bold text-gray-900 uppercase">Milynx</span>
