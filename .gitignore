@@ -1,0 +1,178 @@
+# =========================
+
+# ENVIRONMENT VARIABLES
+
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+
+# PYTHON / FASTAPI
+
+# =========================
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+*.so
+.Python
+
+venv/
+.venv/
+ENV/
+env/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# =========================
+
+# FASTAPI UPLOADS / TEMP
+
+# =========================
+
+uploads/
+temp/
+logs/
+
+# =========================
+
+# REACT / TYPESCRIPT
+
+# =========================
+
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+
+frontend/.vite/
+
+# TypeScript
+
+*.tsbuildinfo
+
+# =========================
+
+# DOCKER
+
+# =========================
+
+.docker/
+
+# Ignore local docker volumes
+
+postgres_data/
+pgdata/
+redis_data/
+
+# =========================
+
+# DATABASE
+
+# =========================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+
+# IDE
+
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+
+# OPERATING SYSTEM
+
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+
+# LOGS
+
+# =========================
+
+*.log
+logs/
+
+# =========================
+
+# SECRETS
+
+# =========================
+
+backend/.env
+frontend/.env
+
+*.pem
+*.key
+*.crt
+
+# =========================
+
+# TEST OUTPUTS
+
+# =========================
+
+coverage/
+coverage.xml
+
+# =========================
+
+# CACHE
+
+# =========================
+
+.cache/
+tmp/
+temp/
+
+# =========================
+
+# AI / ML
+
+# =========================
+
+models/
+checkpoints/
+wandb/
+mlruns/
+
+# =========================
+
+# LOCAL CONFIG
+
+# =========================
+
+*.local
