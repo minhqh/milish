@@ -1,4 +1,5 @@
 import ApiKeyModel from './components/ApiKeyModal';
+import WritingWorkspace from './components/WritingWorkspace';
 import TestLayout from './layouts/TestLayout';
 
 export default function App() {
@@ -6,20 +7,18 @@ export default function App() {
     <TestLayout>
       <ApiKeyModel />
       <div className="flex flex-col items-center justify-center h-full pt-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Question 1: Read a text aloud
-        </h2>
-        <p className="text-gray-700 text-center max-w-3xl text-lg sm:text-xl leading-relaxed font-serif">
-          "Good morning, shoppers! Welcome to Star Supermarket. 
-          Today, we are offering a 20% discount on all fresh produce. 
-          Please head to the fruit aisle to enjoy this amazing deal."
-        </p>
-        
-        {/* Placeholder cho phần ghi âm */}
-        <div className="mt-16 bg-red-50 text-red-600 p-6 rounded-full border border-red-200 animate-pulse font-medium shadow-sm flex items-center gap-3">
-          <div className="w-3 h-3 bg-red-600 rounded-full animate-ping"></div>
-          🎙️ Recording area will go here...
+        {/* Đổi đề bài sang TOEIC Writing Part 3 */}
+        <div className="w-full max-w-4xl bg-blue-50 border-l-4 border-blue-600 p-6 rounded mb-2">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Question 8: Write an opinion essay
+          </h2>
+          <p className="text-gray-800 text-lg leading-relaxed font-medium">
+            "Some people prefer to work for a large company, while others prefer to work for a small company. Which do you prefer? Use specific reasons and examples to support your opinion."
+          </p>
         </div>
+        
+        {/* Chèn Khu vực làm bài Writing vào đây */}
+        <WritingWorkspace />
       </div>
       </TestLayout>
   )
