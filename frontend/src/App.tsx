@@ -1,8 +1,10 @@
+import ApiKeyModel from './components/ApiKeyModal';
 import TestLayout from './layouts/TestLayout';
 
 export default function App() {
   return (
     <TestLayout>
+      <ApiKeyModel />
       <div className="flex flex-col items-center justify-center h-full pt-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Question 1: Read a text aloud
@@ -19,6 +21,6 @@ export default function App() {
           🎙️ Recording area will go here...
         </div>
       </div>
-    </TestLayout>
+      </TestLayout>
   )
 }
