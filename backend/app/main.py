@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.endpoints import writing
 
 app = FastAPI(title="Milish App", version="1.0.0")
 
@@ -10,6 +11,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(writing.router, prefix="/api/writing", tags=["Writing"])
 
 @app.get("/")
 async def root():
