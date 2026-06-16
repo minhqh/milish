@@ -18,7 +18,7 @@ export default function App() {
         </div>
         
         {/* Chèn Khu vực làm bài Writing vào đây */}
-        <WritingWorkspace />
+        <WritingWorkspace question="Some people think that students should study online at home, while others think they should study at school. Discuss both views and give your opinion."/>
       </div>
       </TestLayout>
   )
