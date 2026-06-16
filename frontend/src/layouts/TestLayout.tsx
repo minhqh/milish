@@ -1,11 +1,17 @@
 import type { ReactNode } from 'react';
+import CountdownTimer from '../components/CountdownTimer';
 
 interface TestLayoutProps {
   children: ReactNode;
 }
 
 export default function TestLayout({ children }: TestLayoutProps) {
-  return (
+  // Gia lap het gio
+    const handleTimeUp = () => {
+        console.log("Hết giờ! Tự động lưu bài...");
+    };
+
+    return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
       {/* Header: Thông tin kỳ thi và Đồng hồ */}
       <header className="bg-white border-b border-gray-300 h-16 flex items-center justify-between px-6 shrink-0">
@@ -14,10 +20,7 @@ export default function TestLayout({ children }: TestLayoutProps) {
           <span className="text-gray-500 font-medium hidden sm:inline">| TOEIC Speaking & Writing</span>
         </div>
         
-        {/* Placeholder Đồng hồ đếm ngược */}
-        <div className="bg-blue-50 border border-blue-200 px-6 py-1 rounded-md text-blue-700 font-bold text-xl tracking-widest shadow-inner">
-          00:45
-        </div>
+        <CountdownTimer initialSeconds={45} onTimeUp={handleTimeUp} />
 
         <div className="text-sm font-medium text-gray-600">
           Candidate: <span className="font-bold text-gray-900 uppercase">Milynx</span>
