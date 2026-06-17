@@ -3,7 +3,6 @@ import SpeakingWorkspace from '../components/SpeakingWorkspace';
 import WritingWorkspace from '../components/WritingWorkspace';
 
 export default function TestSession() {
-  const sessionId = localStorage.getItem('user_id') || 'anonymous';
   const testId = "bdb75c46-da1f-470a-aaf2-a5027aee4be9"; // Vẫn đang hardcode tạm để test
 
   return (
@@ -23,19 +22,18 @@ export default function TestSession() {
           </div>
         </div>
         
+        {/* Workspace giờ cực kỳ gọn */}
         <SpeakingWorkspace 
           question="Describe a picture of people having a meeting in an office."
           testId={testId}
-          sessionId={sessionId}
           questionIndex={1} 
         />
 
-        {/* Demo thả luôn Writing vào đây để test UI, sau này sẽ tách riêng từng câu hỏi */}
+        {/* Demo thả luôn Writing vào đây để test UI */}
         <div className="w-full max-w-3xl mt-10 border-t-2 border-dashed border-gray-300 pt-10">
           <WritingWorkspace
             question="Do you agree or disagree with the following statement? Learning online is more effective than traditional classroom learning."
             testId={testId}
-            sessionId={sessionId}
             questionIndex={2} 
           />
         </div>

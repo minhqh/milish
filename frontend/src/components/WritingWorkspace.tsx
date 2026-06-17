@@ -15,14 +15,12 @@ interface GradingResult {
 interface WritingWorkspaceProps {
   question: string;
   testId: string;
-  sessionId: string;
   questionIndex: number;
 }
 
 export default function WritingWorkspace({ 
   question, 
   testId, 
-  sessionId, 
   questionIndex
 }: WritingWorkspaceProps) {
     const [text, setText] = useState('');
@@ -40,11 +38,15 @@ export default function WritingWorkspace({
     // Gọi API chấm bài
     const handleSubmit = async () => {
       const apiKey = localStorage.getItem('gemini_api_key');
+      const token = localStorage.getItem('access_token');
       if (!apiKey) {
         alert("Bạn chưa nhập API Key! Vui lòng tải lại trang để nhập.");
         return;
       }
-
+      if (!token) {
+        alert("Lỗi xác thực: Vui lòng đăng nhập lại!");
+        return;
+      }
       if (wordCount < 10) {
         alert("Bài viết quá ngắn. Vui lòng viết thêm!");
         return;
@@ -54,13 +56,15 @@ export default function WritingWorkspace({
       try {
         const response = await fetch('http://localhost:8000/api/writing/grade', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Bơm JWT vào
+          },
           body: JSON.stringify({
             api_key: apiKey,
             question: question,
             user_response: text,
             test_id: testId,
-            session_id: sessionId,
             question_index: questionIndex
           })
         });

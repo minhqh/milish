@@ -15,14 +15,12 @@ interface GradingResult {
 interface SpeakingWorkspaceProps {
   question: string;
   testId: string;
-  sessionId: string;
   questionIndex: number;
 }
 
 export default function SpeakingWorkspace({
   question, 
   testId, 
-  sessionId, 
   questionIndex
 }: SpeakingWorkspaceProps) {
   const [isRecording, setIsRecording] = useState(false);
@@ -75,8 +73,13 @@ export default function SpeakingWorkspace({
     if (!audioBlob) return;
 
     const apiKey = localStorage.getItem('gemini_api_key');
+    const token = localStorage.getItem('access_token');
     if (!apiKey) {
       alert("Bạn chưa nhập API Key! Vui lòng tải lại trang để nhập.");
+      return;
+    }
+    if (!token) {
+      alert("Lỗi xác thực: Vui lòng đăng nhập lại!");
       return;
     }
 
@@ -88,7 +91,6 @@ export default function SpeakingWorkspace({
       formData.append('question', question);
 
       formData.append('test_id', testId);
-      formData.append('session_id', sessionId);
       formData.append('question_index', questionIndex.toString());
       // Trình duyệt tự sinh Blob, ta cần gán tên file để Backend nhận diện dạng UploadFile
       formData.append('file', audioBlob, 'speaking_record.webm');
@@ -96,6 +98,10 @@ export default function SpeakingWorkspace({
       // Fetch API tự động cấu hình Content-Type là multipart/form-data khi nhận FormData
       const response = await fetch('http://localhost:8000/api/speaking/grade', {
         method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}` // Bơm JWT vào
+            // Lưu ý: Tuyệt đối KHÔNG set 'Content-Type' cho FormData, trình duyệt sẽ tự gán boundary
+        },
         body: formData,
       });
 

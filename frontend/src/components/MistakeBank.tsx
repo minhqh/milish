@@ -24,9 +24,17 @@ export default function MistakeBank() {
 
     useEffect(() => {
         const fetchHistory = async () => {
-            const sessionId = localStorage.getItem('session_id') || 'anonymous_user_1781668530958'; 
+            // Lấy Token từ LocalStorage thay vì sessionId
+            const token = localStorage.getItem('access_token'); 
+            
             try {
-                const response = await fetch(`http://localhost:8000/api/mistake-bank/${sessionId}`);
+                // Đổi URL thành root endpoint, Backend sẽ tự dịch Token ra user_id
+                const response = await fetch(`http://localhost:8000/api/mistake-bank`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Bơm JWT vào Header
+                    }
+                });
                 if (!response.ok) throw new Error("Failed to fetch data");
                 const json = await response.json();
                 setHistory(json.data);
@@ -38,7 +46,8 @@ export default function MistakeBank() {
         };
         fetchHistory();
     }, []);
-if (isLoading) return <div className="text-center mt-10 animate-pulse text-gray-500">Đang tải ngân hàng lỗi...</div>;
+
+    if (isLoading) return <div className="text-center mt-10 animate-pulse text-gray-500">Đang tải ngân hàng lỗi...</div>;
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6">
