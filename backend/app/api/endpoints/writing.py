@@ -1,53 +1,42 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.grading_models import WritingRequest
+from app.schemas.responses import GradeResponse 
 from app.services.gemini_client import grade_writing_with_gemini
-from app.services.supabase_client import supabase 
+from app.services import history_service
+from app.api.dependencies import get_current_user # Chốt chặn JWT
 
 router = APIRouter()
 
-@router.post("/grade")
-async def grade_writing(request: WritingRequest):
+@router.post("/grade", response_model=GradeResponse)
+async def grade_writing(
+    request: WritingRequest,
+    user_id: str = Depends(get_current_user) # Bắt buộc phải có JWT mới cho qua
+):
     try:
+        # 1. Gọi Gemini chấm điểm
         result = grade_writing_with_gemini(
             api_key=request.api_key,
             question=request.question,
             user_response=request.user_response
         )
         
-        # 2. Quản lý test_history (Kiểm tra xem đã có lịch sử làm bài chưa)
-        history_res = supabase.table("test_history") \
-            .select("id") \
-            .eq("session_id", request.session_id) \
-            .eq("test_id", request.test_id) \
-            .execute()
-            
-        if len(history_res.data) > 0:
-            history_id = history_res.data[0]['id'] # Đã có lịch sử
-        else:
-            # Chưa có, tạo lịch sử mới
-            history_data = {
-                "test_id": request.test_id,
-                "session_id": request.session_id,
-                "total_score": 0
-            }
-            insert_res = supabase.table("test_history").insert(history_data).execute()
-            history_id = insert_res.data[0]['id']
-
-        # 3. Ghi chuẩn dữ liệu vào bảng detailed_results
-        detailed_data = {
-            "history_id": history_id,
-            "question_index": request.question_index,
-            "user_answer_text": request.user_response, # Lưu bài gõ essay của thí sinh
-            "user_audio_url": None,                    # Bỏ trống vì đây là Writing
-            "ai_feedback": result                      # Lưu TOÀN BỘ dict JSON trả về từ Gemini
-        }
-        supabase.table("detailed_results").insert(detailed_data).execute()
+        # 2. & 3. Quản lý Database qua Service (Gọn gàng, không lặp code)
+        history_id = history_service.get_or_create_test_history(user_id, request.test_id)
+        
+        history_service.save_detailed_result(
+            history_id=history_id,
+            question_index=request.question_index,
+            user_answer_text=request.user_response,
+            user_audio_url=None, # Bỏ trống vì đây là Writing
+            ai_feedback=result
+        )
 
         # 4. Trả response chuẩn về Frontend
         return {
             "status": "success",
             "history_id": history_id,
             "question_index": request.question_index,
+            "audio_url": None, # Thêm vào cho khớp với GradeResponse (nếu xài chung với Speaking)
             "feedback": result
         }
 
