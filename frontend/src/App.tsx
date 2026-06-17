@@ -1,6 +1,7 @@
 import TestLayout from './layouts/TestLayout';
 import ApiKeyModal from './components/ApiKeyModal';
 import SpeakingWorkspace from './components/SpeakingWorkspace'; // IMPORT COMPONENT MỚI
+import MistakeBank from './components/MistakeBank';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         />
         
       </div>
+      <MistakeBank />
     </TestLayout>
   )
 }
