@@ -14,9 +14,17 @@ interface GradingResult {
 
 interface SpeakingWorkspaceProps {
   question: string;
+  testId: string;
+  sessionId: string;
+  questionIndex: number;
 }
 
-export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) {
+export default function SpeakingWorkspace({
+  question, 
+  testId, 
+  sessionId, 
+  questionIndex
+}: SpeakingWorkspaceProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -78,6 +86,10 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
       const formData = new FormData();
       formData.append('api_key', apiKey);
       formData.append('question', question);
+
+      formData.append('test_id', testId);
+      formData.append('session_id', sessionId);
+      formData.append('question_index', questionIndex.toString());
       // Trình duyệt tự sinh Blob, ta cần gán tên file để Backend nhận diện dạng UploadFile
       formData.append('file', audioBlob, 'speaking_record.webm');
 
@@ -92,7 +104,7 @@ export default function SpeakingWorkspace({ question }: SpeakingWorkspaceProps) 
       }
 
       const data = await response.json();
-      setResult(data);
+      setResult(data.feedback);
     } catch (error) {
       console.error(error);
       alert("Có lỗi xảy ra khi chấm bài. Vui lòng thử lại!");

@@ -23,7 +23,15 @@ export default function App() {
         </div>
         
         {/* NẠP COMPONENT GHI ÂM VÀO ĐÂY */}
-        <SpeakingWorkspace question="Describe a picture of people having a meeting in an office." />
+        <SpeakingWorkspace 
+          question="Describe a picture of people having a meeting in an office."
+          testId={"bdb75c46-da1f-470a-aaf2-a5027aee4be9"}
+          sessionId={
+              localStorage.getItem('session_id')
+              || 'anonymous_user_' + Date.now()
+          }
+          questionIndex={1} 
+        />
         
       </div>
     </TestLayout>
