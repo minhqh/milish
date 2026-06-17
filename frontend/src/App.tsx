@@ -1,52 +1,54 @@
-import TestLayout from './layouts/TestLayout';
-import ApiKeyModal from './components/ApiKeyModal';
-import SpeakingWorkspace from './components/SpeakingWorkspace'; // IMPORT COMPONENT MỚI
-import MistakeBank from './components/MistakeBank';
-import WritingWorkspace from './components/WritingWorkspace';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
+import Dashboard from './pages/Dashboard';
+import TestSession from './pages/TestSession';
+import ApiKeyModal from './components/ApiKeyModal';
+import type React from 'react';
+
+// Hàm bảo vệ Route: Nếu chưa đăng nhập thì đá về /auth
+const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
+  const isAuthenticated = !!localStorage.getItem('user_id');
+  return isAuthenticated ? children : <Navigate to="/auth" replace />;
+};
 
 export default function App() {
+  const isAuthenticated = !!localStorage.getItem('user_id');
+
   return (
-    <TestLayout>
-      <ApiKeyModal />
-      <div className="flex flex-col items-center justify-start h-full pt-4 w-full">
-        
-        {/* Đổi đề bài sang TOEIC Speaking Part 2 */}
-        <div className="w-full max-w-3xl bg-blue-50 border-l-4 border-blue-600 p-6 rounded mb-2">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Question 3: Describe a picture
-          </h2>
-          <p className="text-gray-700 text-base mb-4 font-medium">
-            Directions: In this part of the test, you will describe the picture on your screen in as much detail as you can. You will have 45 seconds to speak.
-          </p>
-          <div className="w-full flex justify-center bg-white p-2 rounded border border-gray-200">
-             {/* Một ảnh Placeholder cho thí sinh miêu tả */}
-             <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop" alt="People in meeting" className="rounded max-h-64 object-cover" />
-          </div>
-        </div>
-        
-        {/* NẠP COMPONENT GHI ÂM VÀO ĐÂY */}
-        <SpeakingWorkspace 
-          question="Describe a picture of people having a meeting in an office."
-          testId={"bdb75c46-da1f-470a-aaf2-a5027aee4be9"}
-          sessionId={
-              localStorage.getItem('session_id')
-              || 'anonymous_user_' + Date.now()
-          }
-          questionIndex={1} 
+    <BrowserRouter>
+      {/* Modal nhập Key Gemini luôn luôn chạy ngầm để check */}
+      <ApiKeyModal /> 
+      
+      <Routes>
+        {/* Route Đăng nhập/Đăng ký */}
+        <Route 
+          path="/auth" 
+          element={isAuthenticated ? <Navigate to="/" replace /> : <AuthPage />} 
         />
-            <WritingWorkspace
-      question="Do you agree or disagree with the following statement? ..."
-      testId={"bdb75c46-da1f-470a-aaf2-a5027aee4be9"}
-          sessionId={
-              localStorage.getItem('session_id')
-              || 'anonymous_user_' + Date.now()
-          }
-      questionIndex={1} 
-    />
-      </div>
-      <MistakeBank />
-      <AuthPage />
-    </TestLayout>
-  )
+
+        {/* Route Dashboard (Trang chủ) */}
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Route Phòng Thi */}
+        <Route 
+          path="/test" 
+          element={
+            <ProtectedRoute>
+              <TestSession />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Bắt mọi route sai (404) đá về trang chủ */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
