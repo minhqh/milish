@@ -41,10 +41,21 @@ export default function TestSession() {
   useEffect(() => {
     const fetchTest = async () => {
       const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        window.location.href = '/login'; // Đổi thành route login của cậu
+        return;
+      }
       try {
         const response = await fetch(`http://localhost:8000/api/tests/${testId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (response.status === 401) {
+            localStorage.removeItem('access_token'); // Xóa token rác
+            alert("Token đã hết hạn! Vui lòng đăng nhập lại.");
+            window.location.href = '/login';
+            return;
+        }
         if (!response.ok) throw new Error("Lỗi lấy đề thi");
         const json = await response.json();
         setTestData(json.data);
