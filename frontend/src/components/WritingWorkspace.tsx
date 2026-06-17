@@ -14,9 +14,17 @@ interface GradingResult {
 
 interface WritingWorkspaceProps {
   question: string;
+  testId: string;
+  sessionId: string;
+  questionIndex: number;
 }
 
-export default function WritingWorkspace({ question }: WritingWorkspaceProps) {
+export default function WritingWorkspace({ 
+  question, 
+  testId, 
+  sessionId, 
+  questionIndex
+}: WritingWorkspaceProps) {
     const [text, setText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<GradingResult | null>(null);
@@ -50,7 +58,10 @@ export default function WritingWorkspace({ question }: WritingWorkspaceProps) {
           body: JSON.stringify({
             api_key: apiKey,
             question: question,
-            user_response: text
+            user_response: text,
+            test_id: testId,
+            session_id: sessionId,
+            question_index: questionIndex
           })
         });
 
@@ -59,7 +70,7 @@ export default function WritingWorkspace({ question }: WritingWorkspaceProps) {
         }
 
         const data = await response.json();
-        setResult(data);
+        setResult(data.feedback);
       } catch (error) {
         console.error(error);
         alert("Có lỗi xảy ra khi chấm bài. Vui lòng thử lại!");
@@ -122,7 +133,7 @@ export default function WritingWorkspace({ question }: WritingWorkspaceProps) {
                 ✍️ Grammar Corrections
               </h5>
               <ul className="space-y-3">
-                {result.grammar_mistakes.map((mistake, index) => (
+                {result.grammar_mistakes?.map((mistake, index) => (
                   <li key={index} className="bg-red-50 p-3 rounded border border-red-100 text-sm">
                     <div className="line-through text-red-400 mb-1">{mistake.original}</div>
                     <div className="text-green-700 font-medium">{mistake.corrected}</div>
@@ -137,7 +148,7 @@ export default function WritingWorkspace({ question }: WritingWorkspaceProps) {
                 💡 Suggested Vocabulary
               </h5>
               <div className="flex flex-wrap gap-2">
-                {result.suggested_vocab.map((vocab, index) => (
+                {result.suggested_vocab?.map((vocab, index) => (
                   <span key={index} className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full text-sm font-medium">
                     {vocab}
                   </span>

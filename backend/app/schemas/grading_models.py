@@ -17,3 +17,6 @@ class WritingRequest(BaseModel):
     api_key: str
     question: str
     user_response: str
+    test_id: str
+    session_id: str
+    question_index: int

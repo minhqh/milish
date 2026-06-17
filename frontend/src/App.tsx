@@ -2,6 +2,7 @@ import TestLayout from './layouts/TestLayout';
 import ApiKeyModal from './components/ApiKeyModal';
 import SpeakingWorkspace from './components/SpeakingWorkspace'; // IMPORT COMPONENT MỚI
 import MistakeBank from './components/MistakeBank';
+import WritingWorkspace from './components/WritingWorkspace';
 
 export default function App() {
   return (
@@ -33,7 +34,15 @@ export default function App() {
           }
           questionIndex={1} 
         />
-        
+            <WritingWorkspace
+      question="Do you agree or disagree with the following statement? ..."
+      testId={"bdb75c46-da1f-470a-aaf2-a5027aee4be9"}
+          sessionId={
+              localStorage.getItem('session_id')
+              || 'anonymous_user_' + Date.now()
+          }
+      questionIndex={1} 
+    />
       </div>
       <MistakeBank />
     </TestLayout>
