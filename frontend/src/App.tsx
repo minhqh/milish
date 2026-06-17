@@ -33,7 +33,7 @@ export default function App() {
         />
 
         <Route 
-          path="/test" 
+          path="/test/:testId" 
           element={
             <ProtectedRoute>
               <TestSession />

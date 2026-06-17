@@ -17,7 +17,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-black text-blue-600">milish.</h1>
         <div className="flex gap-4">
           <button 
-            onClick={() => navigate('/test')}
+            onClick={() => navigate('/test/a20daca2-2d7a-40c2-a840-9547514a6af8')}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-md"
           >
             Start Practice Test

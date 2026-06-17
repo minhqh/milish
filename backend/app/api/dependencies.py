@@ -1,42 +1,48 @@
 import os
+import json
 import jwt
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SUPABASE_JWT_KEY = os.getenv("SUPABASE_JWT_SECRET")
-
+load_dotenv()
 security = HTTPBearer()
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    """
-    Hàm này dùng để bảo vệ các Endpoint. 
-    Nó giải mã JWT, kiểm tra tính hợp lệ và trả về user_id.
-    """
-    token = credentials.credentials
+jwks_string = os.getenv("SUPABASE_JWKS")
+try:
+    JWKS_DATA = json.loads(jwks_string) if jwks_string else {"keys": []}
+except json.JSONDecodeError:
+    print("❌ LỖI: Biến SUPABASE_JWKS trong .env không phải là JSON hợp lệ!")
+    JWKS_DATA = {"keys": []}
 
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    token = credentials.credentials
     try:
+        # 1. Trích xuất header của token để lấy 'kid' (Key ID) mà không cần giải mã
+        unverified_header = jwt.get_unverified_header(token)
+        kid = unverified_header.get("kid")
+        
+        # 2. Tìm key có 'kid' khớp với token trong danh sách JWKS của chúng ta
+        key_dict = next((k for k in JWKS_DATA.get("keys", []) if k.get("kid") == kid), None)
+        
+        if not key_dict:
+            raise Exception(f"Không tìm thấy Public Key (kid: {kid}) trong biến môi trường")
+        
+        # 3. Tạo Signing Key từ dict và giải mã
+        signing_key = jwt.PyJWK(key_dict)
+        
         payload = jwt.decode(
             token,
-            SUPABASE_JWT_KEY,
-            algorithms=["HS256"],
+            signing_key.key,
+            algorithms=["ES256"],
             options={"verify_aud": False}
         )
-
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token không chưa thông tin User ID hợp lệ"
-            )
         
-        return user_id
-    except jwt.ExpiredSignatureError:
+        return payload.get("sub")
+        
+    except Exception as e:
+        print(f"❌ LỖI GIẢI MÃ: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Token đã hết hạn, vui lòng đăng nhập lại"
-        )
-    except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Token không hợp lệ hoặc đã bị chỉnh sửa"
+            detail="Token không hợp lệ hoặc đã hết hạn"
         )

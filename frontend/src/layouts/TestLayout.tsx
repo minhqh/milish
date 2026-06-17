@@ -1,46 +1,71 @@
-import type { ReactNode } from 'react';
-import CountdownTimer from '../components/CountdownTimer';
+import React from 'react';
+import CountdownTimer from '../components/CountdownTimer'; 
 
 interface TestLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
+  onNext?: () => void;
+  onBack?: () => void;
+  isFirst?: boolean;
+  isLast?: boolean;
+  timeLimit: number;     // Thêm dòng này: Nhận thời gian từ TestSession
+  onTimeUp?: () => void; // Thêm dòng này: Nhận hàm xử lý khi hết giờ
 }
 
-export default function TestLayout({ children }: TestLayoutProps) {
-  // Gia lap het gio
-    const handleTimeUp = () => {
-        console.log("Hết giờ! Tự động lưu bài...");
-    };
-
-    return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {/* Header: Thông tin kỳ thi và Đồng hồ */}
-      <header className="bg-white border-b border-gray-300 h-16 flex items-center justify-between px-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="font-bold text-xl text-blue-800">Milish.</h1>
-          <span className="text-gray-500 font-medium hidden sm:inline">| TOEIC Speaking & Writing</span>
+export default function TestLayout({ 
+  children, 
+  onNext, 
+  onBack, 
+  isFirst = true, 
+  isLast = false,
+  timeLimit,             // Nhận prop
+  onTimeUp               // Nhận prop
+}: TestLayoutProps) {
+  return (
+    <div className="flex flex-col h-screen bg-gray-50 font-sans">
+      
+      {/* --- HEADER --- */}
+      <header className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center z-10">
+        <div className="text-xl font-black text-blue-700 tracking-tight">
+          Milish.
         </div>
         
-        <CountdownTimer initialSeconds={60} onTimeUp={handleTimeUp} />
-
-        <div className="text-sm font-medium text-gray-600">
-          Candidate: <span className="font-bold text-gray-900 uppercase">Milynx</span>
+        <div className="flex items-center gap-6">
+          {/* TRUYỀN PROPS XUỐNG COUNTDOWNTIMER */}
+          <CountdownTimer initialSeconds={timeLimit} onTimeUp={onTimeUp} /> 
+          
+          <button className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-md text-sm font-bold hover:bg-red-100 transition-colors">
+            THOÁT BÀI THI
+          </button>
         </div>
       </header>
 
-      {/* Main Workspace: Khu vực hiển thị câu hỏi */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center items-start">
-        <div className="w-full max-w-5xl bg-white shadow-sm border border-gray-200 rounded-lg p-6 sm:p-10 min-h-[60vh]">
-          {children}
-        </div>
+      {/* --- MAIN CONTENT & FOOTER GIỮ NGUYÊN --- */}
+      <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 flex justify-center">
+        {children}
       </main>
-      
-      {/* Footer: Điều hướng */}
-      <footer className="bg-white border-t border-gray-300 h-16 flex items-center justify-end px-6 shrink-0 gap-4">
-        <button className="px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded hover:bg-gray-200 transition-colors">
-          Back
+
+      <footer className="bg-white border-t px-8 py-4 flex justify-between items-center shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-10">
+        <button
+          onClick={onBack}
+          disabled={isFirst}
+          className={`px-6 py-2.5 rounded-md font-semibold transition-all ${
+            isFirst 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          Quay lại
         </button>
-        <button className="px-8 py-2 bg-blue-600 text-white font-semibold rounded shadow-md hover:bg-blue-700 transition-colors">
-          Next
+
+        <button
+          onClick={onNext}
+          className={`px-8 py-2.5 rounded-md font-semibold text-white transition-all ${
+            isLast 
+              ? 'bg-green-600 hover:bg-green-700 shadow-md shadow-green-200' 
+              : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200'
+          }`}
+        >
+          {isLast ? 'Nộp bài' : 'Câu tiếp theo'}
         </button>
       </footer>
     </div>
