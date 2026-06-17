@@ -8,6 +8,7 @@ interface MistakeBankData {
     detailed_results: {
         question_index: number;
         user_audio_url: string | null;
+        user_answer_text: string | null;
         ai_feedback: {
             total_score: number;
             grammar_mistakes: { original: string; corrected: string }[];
@@ -77,10 +78,18 @@ if (isLoading) return <div className="text-center mt-10 animate-pulse text-gray-
                     <div key={idx} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                       <div className="flex justify-between items-center mb-4">
                         <h4 className="font-bold text-gray-700">Câu hỏi #{detail.question_index}</h4>
+                                        {/* Hiển thị Audio nếu là bài Speaking */}
                         {detail.user_audio_url && (
-                          <audio src={detail.user_audio_url} controls className="h-8 w-64" />
+                            <audio src={detail.user_audio_url} controls className="h-10 w-full md:w-72" />
                         )}
-                      </div>
+                        </div>
+
+                        {/* Hiển thị Text nếu là bài Writing */}
+                        {detail.user_answer_text && (
+                        <div className="mb-6 p-4 bg-blue-50/50 rounded-lg border-l-4 border-blue-400 text-gray-700 italic leading-relaxed text-sm md:text-base shadow-inner">
+                            "{detail.user_answer_text}"
+                        </div>
+                        )}
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Cột Ngữ Pháp */}
