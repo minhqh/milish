@@ -3,6 +3,7 @@ import ApiKeyModal from './components/ApiKeyModal';
 import SpeakingWorkspace from './components/SpeakingWorkspace'; // IMPORT COMPONENT MỚI
 import MistakeBank from './components/MistakeBank';
 import WritingWorkspace from './components/WritingWorkspace';
+import AuthPage from './pages/AuthPage';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
     />
       </div>
       <MistakeBank />
+      <AuthPage />
     </TestLayout>
   )
 }
