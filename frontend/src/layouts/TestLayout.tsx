@@ -7,8 +7,9 @@ interface TestLayoutProps {
   onBack?: () => void;
   isFirst?: boolean;
   isLast?: boolean;
-  timeLimit: number;     // Thêm dòng này: Nhận thời gian từ TestSession
-  onTimeUp?: () => void; // Thêm dòng này: Nhận hàm xử lý khi hết giờ
+  timeLimit: number;     
+  onTimeUp?: () => void; 
+  testName?: string;     // Thêm dòng này: Nhận tên bài test từ TestSession
 }
 
 export default function TestLayout({ 
@@ -17,16 +18,29 @@ export default function TestLayout({
   onBack, 
   isFirst = true, 
   isLast = false,
-  timeLimit,             // Nhận prop
-  onTimeUp               // Nhận prop
+  timeLimit,             
+  onTimeUp,              
+  testName               // Nhận prop
 }: TestLayoutProps) {
   return (
     <div className="flex flex-col h-screen bg-gray-50 font-sans">
       
       {/* --- HEADER --- */}
       <header className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center z-10">
-        <div className="text-xl font-black text-blue-700 tracking-tight">
-          Milish.
+        <div className="flex items-center gap-4">
+          <div className="text-xl font-black text-blue-700 tracking-tight">
+            Milish.
+          </div>
+          
+          {/* Hiển thị tên bài test cực mượt trên Header */}
+          {testName && (
+            <>
+              <div className="w-px h-6 bg-gray-300"></div>
+              <h1 className="text-lg font-bold text-gray-700 truncate max-w-md">
+                {testName}
+              </h1>
+            </>
+          )}
         </div>
         
         <div className="flex items-center gap-6">
