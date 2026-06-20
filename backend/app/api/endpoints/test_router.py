@@ -1,5 +1,3 @@
-from unittest import result
-
 from fastapi import APIRouter, HTTPException, Depends
 from app.services.supabase_client import supabase
 from app.api.dependencies import get_current_user
@@ -8,6 +6,8 @@ from app.api.dependencies import get_current_user
 from app.schemas.test import GenerateTestRequest, TestSubmitRequest
 from app.services.test_service import TestService
 from app.services import history_service
+from app.schemas.grading_models import GradeRequest
+from app.services.grading_service import GradingService
 
 router = APIRouter()
 
@@ -95,3 +95,8 @@ async def submit_test(request: TestSubmitRequest, user_id: str = Depends(get_cur
 async def get_test_result(history_id: str, user_id = Depends(get_current_user)):
     result_data = TestService.get_test_result(history_id, user_id)
     return {"status": "success", "data": result_data}
+
+@router.post("/results/{detail_id}/grade")
+async def grade_single_answer(detail_id: str, request: GradeRequest, user_id: str = Depends(get_current_user)):
+    feedback = GradingService.grade_answer(detail_id, request.api_key)
+    return {"status": "success", "data": feedback}

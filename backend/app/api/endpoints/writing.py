@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.grading_models import WritingRequest
 from app.schemas.responses import GradeResponse 
-from app.services.gemini_client import grade_writing_with_gemini
+from app.services.grading_service import GradingService
 from app.services import history_service
 from app.api.dependencies import get_current_user # Chốt chặn JWT
 
@@ -14,7 +14,7 @@ async def grade_writing(
 ):
     try:
         # 1. Gọi Gemini chấm điểm
-        result = grade_writing_with_gemini(
+        result = GradingService.grade_writing(
             api_key=request.api_key,
             question=request.question,
             user_response=request.user_response

@@ -19,3 +19,6 @@ class WritingRequest(BaseModel):
     user_response: str
     test_id: str
     question_index: int
+
+class GradeRequest(BaseModel):
+    api_key: str

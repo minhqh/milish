@@ -1,79 +1,54 @@
 import google.generativeai as genai
 import json
 
-def grade_writing_with_gemini(api_key: str, question: str, user_response: str):
-    genai.configure(api_key=api_key)
+class GeminiService:
+    def __init__(self, api_key: str):
+        # Setup key ngay khi khởi tạo
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
-    model = genai.GenerativeModel(
-        'gemini-2.5-flash',
-    )
+    def _parse_json(self, response_text: str) -> dict:
+        """Hàm dùng chung để dọn dẹp rác Markdown và ép kiểu JSON"""
+        text = response_text.replace("```json", "").replace("```", "").strip()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return {"error": "Lỗi phân tích cú pháp từ AI", "raw_text": text}
 
-    prompt = f"""
-    You are a strict TOEIC Writing examiner.
-    Question: {question}
-    Candidate's response: {user_response}
-    
-    Evaluate the response based on Task Achievement, Grammar, and Lexical Resource.
-    Score it out of 5.
-    
-    You MUST return ONLY a valid JSON object matching this exact schema:
-    {{
-        "total_score": int (from 0 to 5),
-        "grammar_mistakes": [
-            {{"original": "the wrong word or phrase", "corrected": "the correction"}}
-        ],
-        "suggested_vocab": ["advanced_word_1", "advanced_word_2", "advanced_word_3"]
-    }}
-    """
-    
-    response = model.generate_content(prompt)
-    print("===== GEMINI RESPONSE =====")
-    print(response.text)
-    print("===========================")
-    # Trả về dưới dạng Dictionary (FastAPI sẽ tự động convert sang JSON)
-    text = response.text
+    def grade_writing(self, question: str, user_response: str) -> dict:
+        prompt = f"""
+        You are a strict TOEIC Writing examiner.
+        Question: {question}
+        Candidate's response: {user_response}
+        
+        Evaluate the response based on Task Achievement, Grammar, and Lexical Resource. Score it out of 5.
+        You MUST return ONLY a valid JSON object matching this exact schema:
+        {{
+            "total_score": int (from 0 to 5),
+            "grammar_mistakes": [{{"original": "wrong", "corrected": "right"}}],
+            "suggested_vocab": ["word1", "word2"],
+            "note": "brief feedback"
+        }}
+        """
+        response = self.model.generate_content(prompt)
+        return self._parse_json(response.text)
 
-    text = text.replace("```json", "")
-    text = text.replace("```", "")
-    text = text.strip()
-
-    return json.loads(text)
-
-def grade_speaking_with_gemini(api_key: str, question: str, audio_bytes: bytes, mime_type: str):
-    # Cấu hình API Key
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    prompt = f"""
-    You are a strict TOEIC Speaking examiner.
-    Question/Context: {question}
-    
-    Listen carefully to the attached candidate's audio response.
-    Evaluate it based on Pronunciation, Intonation, Grammar, and Vocabulary.
-    Score it out of 5.
-    
-    You MUST return ONLY a valid JSON object matching this exact schema:
-    {{
-        "total_score": int (from 0 to 5),
-        "grammar_mistakes": [
-            {{
-                "original": "the mispronounced word or wrong phrase you heard in the audio", 
-                "corrected": "the correction"
-            }}
-        ],
-        "suggested_vocab": ["advanced_word_or_phrase_1", "advanced_word_or_phrase_2"]
-    }}
-    """
-    
-    # Truyền trực tiếp dữ liệu nhị phân của file audio vào model cùng với prompt
-    response = model.generate_content([
-        {
-            "mime_type": mime_type,
-            "data": audio_bytes
-        },
-        prompt
-    ])
-    
-    # Làm sạch text markdown block như cậu đã xử lý ở phần trước
-    text = response.text.replace("```json", "").replace("```", "").strip()
-    return json.loads(text)
+    def grade_speaking(self, question: str, audio_bytes: bytes, mime_type: str = "audio/webm") -> dict:
+        prompt = f"""
+        You are a strict TOEIC Speaking examiner.
+        Question/Context: {question}
+        
+        Listen to the audio. Evaluate Pronunciation, Intonation, Grammar, and Vocabulary. Score it out of 5.
+        You MUST return ONLY a valid JSON object matching this exact schema:
+        {{
+            "total_score": int (from 0 to 5),
+            "grammar_mistakes": [{{"original": "wrong sound", "corrected": "right sound"}}],
+            "suggested_vocab": ["word1", "word2"],
+            "note": "brief feedback"
+        }}
+        """
+        response = self.model.generate_content([
+            {"mime_type": mime_type, "data": audio_bytes},
+            prompt
+        ])
+        return self._parse_json(response.text)

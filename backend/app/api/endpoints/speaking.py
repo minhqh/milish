@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
-from app.services.gemini_client import grade_speaking_with_gemini
+from app.services.gemini_client import GeminiService
 from app.services import storage_service, history_service
 from app.utils.file_handlers import validate_audio_file, generate_unique_filename
 from app.schemas.responses import GradeResponse
@@ -22,7 +22,7 @@ async def grade_speaking(
         audio_bytes = await file.read()
         
         # 1. Gọi Gemini
-        result = grade_speaking_with_gemini(api_key, question, audio_bytes, file.content_type)
+        result = GeminiService.grade_speaking(api_key, question, audio_bytes, file.content_type)
 
         # 2. Upload file
         unique_filename = generate_unique_filename(user_id, file.filename)
