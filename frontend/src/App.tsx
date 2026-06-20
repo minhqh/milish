@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import TestSession from './pages/TestSession';
 import ApiKeyModal from './components/ApiKeyModal';
 import TestHub from './pages/TestHub';
+import ResultPage from './pages/ResultPage';
 
 // Hàm bảo vệ Route: Kiểm tra xem có Token không
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }) => {
@@ -50,7 +51,7 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
-
+        <Route path="/result/:historyId" element={<ResultPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

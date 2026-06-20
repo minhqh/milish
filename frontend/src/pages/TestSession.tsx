@@ -116,8 +116,7 @@ export default function TestSession() {
       if (!response.ok) throw new Error(json.detail || "Lỗi khi nộp bài");
 
       alert("🎉 Nộp bài thành công rực rỡ!");
-      // Sau này làm trang kết quả xong, ta sẽ navigate sang `/result/${json.data.history_id}`
-      navigate('/'); 
+      navigate(`/result/${json.data.history_id}`);
 
     } catch (error: any) {
       alert(`❌ Thất bại: ${error.message}`);
