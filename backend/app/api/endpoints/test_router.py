@@ -3,8 +3,9 @@ from app.services.supabase_client import supabase
 from app.api.dependencies import get_current_user
 
 # Import Schema và Service mà chúng ta vừa tái cấu trúc
-from app.schemas.request import GenerateTestRequest
+from app.schemas.test import GenerateTestRequest, TestSubmitRequest
 from app.services.test_service import TestService
+from app.services import history_service
 
 router = APIRouter()
 
@@ -77,3 +78,13 @@ async def get_test(test_id: str, user_id: str = Depends(get_current_user)):
     test_info["questions"] = formatted_questions
 
     return {"status": "success", "data": test_info}
+
+@router.post("/submit")
+async def submit_test(request: TestSubmitRequest, user_id: str = Depends(get_current_user)):
+    history_id = TestService.submit_test(request, user_id)
+
+    return {
+        "status": "success", 
+        "message": "Nộp bài thành công!", 
+        "data": {"history_id": history_id}
+    }
