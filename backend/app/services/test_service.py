@@ -6,14 +6,14 @@ from app.schemas.request import GenerateTestRequest
 
 class TestService:
     @staticmethod
-    def genarate_custom_test(request: GenerateTestRequest, user_id: str) -> str:
+    def generate_custom_test(request: GenerateTestRequest, user_id: str) -> str:
         try:
             query = supabase.table("question_bank").select("id")
 
             if request.skills:
-                query = query.in_("skills", request.skills)
+                query = query.in_("skill", request.skills)
             if request.topics:
-                query = query.in_("topics", request.topics)
+                query = query.in_("topic", request.topics)
 
             res = query.execute()
             matching_questions = res.data
