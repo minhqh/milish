@@ -102,4 +102,76 @@ class TestService:
         except Exception as e:
             print(f"❌ LỖI NỘP BÀI (Service): {repr(e)}")
             raise HTTPException(status_code=500, detail="Đã xảy ra lỗi khi lưu bài thi")
+    
+    @staticmethod
+    def get_test_result(history_id: str, user_id: str):
+        try:
+            hist_res = supabase.table("test_history") \
+                .select("*, tests(id, name)") \
+                .eq("id", history_id) \
+                .eq("user_id", user_id) \
+                .execute()
+            
+            if not hist_res:
+                raise HTTPException(status_code=404, detail="Không tìm thấy lịch sử làm bài")
+            
+            history_data =  hist_res.data[0]
+            test_id = history_data["test_id"]
+
+            details_res = supabase.table("detailed_results") \
+                .select("*") \
+                .eq("history_id", history_id) \
+                .order("question_index") \
+                .execute()
+            user_answers = details_res.data
+
+            questions_res = supabase.table("test_questions") \
+                .select("order_idx, question_bank(*)") \
+                .eq("test_id", test_id) \
+                .execute()
+            
+            question_dict = {}
+            for q in questions_res.data:
+                qb = q.get("question_bank")
+                if qb:
+                    question_dict[q["order_idx"]] = {
+                        "question_id": qb.get("id"),
+                        "skill": qb.get("skill"),
+                        "part_type": qb.get("part_type"),
+                        **qb.get("content", {}) # Trải phẳng JSONB
+                    }
+
+            merged_results = []
+            for ans in user_answers:
+                idx = ans["question_index"]
+                original_q = question_dict.get(idx, {})
+                
+                merged_results.append({
+                    "detail_id": ans["id"],
+                    "question_index": idx,
+                    "skill": original_q.get("skill", "unknown"),
+                    "part_type": original_q.get("part_type", "unknown"),
+                    "question_content": original_q.get("text", ""),
+                    "question_media": original_q.get("image_url", ""),
+                    
+                    # Phần user làm
+                    "user_answer_text": ans.get("user_answer_text"),
+                    "user_audio_url": ans.get("user_audio_url"),
+                    
+                    # Phần AI chấm (hiện tại có thể đang null)
+                    "ai_feedback": ans.get("ai_feedback") 
+                })
+
+            return {
+                "history_id": history_id,
+                "test_name": history_data["tests"]["name"] if history_data.get("tests") else "Unknown Test",
+                "session_id": history_data["session_id"],
+                "created_at": history_data["created_at"],
+                "results": merged_results
+            }
         
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            print(f"❌ LỖI LẤY KẾT QUẢ (Service): {repr(e)}")
+            raise HTTPException(status_code=500, detail="Lỗi khi truy xuất kết quả thi")

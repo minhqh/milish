@@ -1,3 +1,5 @@
+from unittest import result
+
 from fastapi import APIRouter, HTTPException, Depends
 from app.services.supabase_client import supabase
 from app.api.dependencies import get_current_user
@@ -88,3 +90,8 @@ async def submit_test(request: TestSubmitRequest, user_id: str = Depends(get_cur
         "message": "Nộp bài thành công!", 
         "data": {"history_id": history_id}
     }
+
+@router.get("/results/{history_id}")
+async def get_test_result(history_id: str, user_id = Depends(get_current_user)):
+    result_data = TestService.get_test_result(history_id, user_id)
+    return {"status": "success", "data": result_data}
