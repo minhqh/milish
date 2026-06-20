@@ -66,6 +66,7 @@ class TestService:
                 "user_id": user_id,
                 "session_id": f"session_{int(datetime.now().timestamp())}"
             }
+            supabase.table("test_history").insert(history_data).execute()
 
             detailed_results_data = []
 
@@ -94,7 +95,7 @@ class TestService:
                 })
 
             if detailed_results_data:
-                supabase.table("detailed_results").insert(detailed_results_data)
+                supabase.table("detailed_results").insert(detailed_results_data).execute()
 
             return history_id
 
