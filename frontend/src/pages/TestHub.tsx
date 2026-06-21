@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 // --- INTERFACES ---
 interface TestItem {
@@ -128,36 +129,69 @@ export default function TestHub() {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 text-xl font-bold text-blue-600">Đang tải thư viện đề thi...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-5xl mx-auto">
-        
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-black text-blue-600 mb-4">milish.</h1>
-          <p className="text-gray-600 text-lg">Chọn bộ đề hoặc tự tạo đề thi theo nhu cầu của bạn</p>
-        </div>
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* 🚀 NHÚNG NAVBAR VÀO ĐÂY */}
+      <Navbar />
 
-        {/* --- CARD: TỰ TẠO ĐỀ THI (CUSTOM PRACTICE) --- */}
-        <div className="mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg overflow-hidden text-white p-8 flex flex-col md:flex-row items-center justify-between gap-6 transform transition hover:-translate-y-1 hover:shadow-xl">
-          <div>
-            <div className="flex gap-2 mb-3">
-              <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full">AI Powered</span>
-              <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full">Custom</span>
+      <div className="py-8 px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-5xl mx-auto">
+          
+          {/* --- KHU VỰC DASHBOARD OVERVIEW --- */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Thẻ Luyện tập Custom (Chiếm 2 cột) */}
+            <div className="md:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg overflow-hidden text-white p-8 flex flex-col justify-between relative">
+              <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-4 -translate-y-4">
+                <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              </div>
+              <div className="relative z-10">
+                <div className="flex gap-2 mb-3">
+                  <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full backdrop-blur-sm">AI Powered</span>
+                  <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full backdrop-blur-sm">Custom Test</span>
+                </div>
+                <h2 className="text-3xl font-black mb-2">Build Your Own Test</h2>
+                <p className="text-blue-100 max-w-md text-sm leading-relaxed mb-6">Tự động sinh đề từ ngân hàng dựa trên kỹ năng và chủ đề bạn đang muốn khắc phục. Chấm điểm bằng Gemini AI.</p>
+              </div>
+              <button 
+                onClick={() => setShowBuilder(true)}
+                className="self-start bg-white text-blue-600 font-bold text-base px-8 py-3.5 rounded-xl shadow-md hover:bg-blue-50 transition-colors flex items-center gap-2"
+              >
+                🚀 Khởi tạo đề ngay
+              </button>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Build Your Own Test</h2>
-            <p className="text-blue-100 max-w-xl">Hệ thống sẽ bốc ngẫu nhiên các câu hỏi từ ngân hàng dựa trên kỹ năng và chủ đề bạn muốn luyện tập để tạo ra một đề thi độc nhất.</p>
-          </div>
-          <button 
-            onClick={() => setShowBuilder(true)}
-            className="bg-white text-blue-600 font-bold text-lg px-8 py-4 rounded-xl shadow-md hover:bg-blue-50 transition-colors shrink-0"
-          >
-            🚀 Tạo đề ngay
-          </button>
-        </div>
 
-        {/* --- DANH SÁCH BỘ ĐỀ TĨNH --- */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Thư viện Đề thi Chuẩn</h3>
-          {collections.map((col) => (
+            {/* Thẻ Thống kê tiến độ (Chiếm 1 cột) */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="text-gray-500 font-bold text-sm uppercase tracking-wider mb-1">Tiến độ tuần này</h3>
+                <div className="text-4xl font-black text-gray-800">12<span className="text-lg text-gray-400 font-medium"> bài</span></div>
+              </div>
+              <div className="space-y-3 mt-6">
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-gray-600 mb-1">
+                    <span>Speaking</span>
+                    <span className="text-blue-600">8/10</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full w-[80%]"></div></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-gray-600 mb-1">
+                    <span>Writing</span>
+                    <span className="text-indigo-600">4/5</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2"><div className="bg-indigo-500 h-2 rounded-full w-[80%]"></div></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* --- DANH SÁCH BỘ ĐỀ TĨNH --- */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-black text-gray-800 mb-4 flex items-center gap-2">
+              📚 Thư viện Đề thi chuẩn
+            </h3>
+            {collections.map((col) => (
             <div key={col.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
               <div 
                 className="p-6 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -206,10 +240,10 @@ export default function TestHub() {
               )}
             </div>
           ))}
+          </div>
         </div>
-      </div>
 
-      {/* --- MODAL TẠO ĐỀ (TEST BUILDER) --- */}
+        {/* --- MODAL TẠO ĐỀ (TEST BUILDER) --- */}
       {showBuilder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up">
@@ -293,7 +327,8 @@ export default function TestHub() {
           </div>
         </div>
       )}
-      
+        
+      </div>
     </div>
   );
 }
