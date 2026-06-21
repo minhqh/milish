@@ -5,7 +5,7 @@ from app.api.dependencies import get_current_user # Dependency bảo mật JWT
 
 router = APIRouter()
 
-@router.get("/mistake-bank", response_model=MistakeBankResponse)
+@router.get("/mistake", response_model=MistakeBankResponse)
 async def get_mistake_bank(user_id: str = Depends(get_current_user)):
     try:
         response = supabase.table("test_history") \

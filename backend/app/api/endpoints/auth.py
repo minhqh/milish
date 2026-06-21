@@ -5,7 +5,7 @@ from app.services.auth_service import register_supabase_user, login_supabase_use
 router = APIRouter()
 
 @router.post("/register")
-async def register(req: RegisterRequest, background_tasks: BackgroundTasks):
+def register(req: RegisterRequest, background_tasks: BackgroundTasks):
     try:
         res = register_supabase_user(req.email, req.password, req.full_name)
 
@@ -24,7 +24,7 @@ async def register(req: RegisterRequest, background_tasks: BackgroundTasks):
         raise HTTPException(status_code=400, detail=error_msg)
 
 @router.post("/login")
-async def login(req: LoginRequest):
+def login(req: LoginRequest):
     try:
         res = login_supabase_user(req.email, req.password)
         return {
