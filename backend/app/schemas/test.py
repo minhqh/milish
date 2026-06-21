@@ -13,6 +13,6 @@ class QuestionAnswer(BaseModel):
     answer_text: Optional[str] = None  
     audio_base64: Optional[str] = None
 
-class TestSubmitRequest(BaseModel):
+class SubmitTestRequest(BaseModel):
     test_id: str
     answers: List[QuestionAnswer]

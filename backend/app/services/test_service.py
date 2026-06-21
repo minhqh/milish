@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import HTTPException
 from app.services.supabase_client import supabase
 from app.services.storage_service import upload_audio_to_supabase
-from app.schemas.test import GenerateTestRequest, TestSubmitRequest
+from app.schemas.test import GenerateTestRequest, SubmitTestRequest
 
 class TestService:
     @staticmethod
@@ -57,7 +57,7 @@ class TestService:
             raise HTTPException(status_code=500, detail="Đã xảy ra lỗi khi tạo đề thi")
     
     @staticmethod
-    def submit_test(request: TestSubmitRequest, user_id: str) -> str:
+    def submit_test(request: SubmitTestRequest, user_id: str) -> str:
         try:
             history_id =  str(uuid.uuid4())
             history_data = {

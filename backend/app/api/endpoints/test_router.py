@@ -3,7 +3,7 @@ from app.services.supabase_client import supabase
 from app.api.dependencies import get_current_user
 
 # Import Schema và Service mà chúng ta vừa tái cấu trúc
-from app.schemas.test import GenerateTestRequest, TestSubmitRequest
+from app.schemas.test import GenerateTestRequest, SubmitTestRequest
 from app.services.test_service import TestService
 from app.services import history_service
 from app.schemas.grading_models import GradeRequest
@@ -82,7 +82,7 @@ async def get_test(test_id: str, user_id: str = Depends(get_current_user)):
     return {"status": "success", "data": test_info}
 
 @router.post("/submit")
-async def submit_test(request: TestSubmitRequest, user_id: str = Depends(get_current_user)):
+async def submit_test(request: SubmitTestRequest, user_id: str = Depends(get_current_user)):
     history_id = TestService.submit_test(request, user_id)
 
     return {
