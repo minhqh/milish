@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function AuthPage() {
       if (activeTab === 'register') {
         if (password !== confirmPassword) throw new Error('Mật khẩu nhập lại không khớp!');
         
-        const res = await fetch('http://localhost:8000/api/auth/register', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, full_name: fullName })
@@ -43,7 +44,7 @@ export default function AuthPage() {
         navigate('/'); 
         
       } else {
-        const res = await fetch('http://localhost:8000/api/auth/login', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })

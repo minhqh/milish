@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'; // Import thêm useNa
 import TestLayout from '../layouts/TestLayout';
 import SpeakingWorkspace from '../components/SpeakingWorkspace';
 import WritingWorkspace from '../components/WritingWorkspace';
+import { API_BASE_URL } from '../config';
 
 interface Question {
   question_id: string;
@@ -48,7 +49,7 @@ export default function TestSession() {
       const token = localStorage.getItem('access_token');
       if (!token) return navigate('/login');
       try {
-        const response = await fetch(`http://localhost:8000/api/tests/${testId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/tests/${testId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.status === 401) {
@@ -100,7 +101,7 @@ export default function TestSession() {
     const answersList = Object.values(answers);
 
     try {
-      const response = await fetch('http://localhost:8000/api/tests/submit', {
+      const response = await fetch(`${API_BASE_URL}/api/tests/submit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

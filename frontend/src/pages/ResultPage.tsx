@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 // ... (Giữ nguyên các interface ResultDetail và TestResult như cũ) ...
 interface ResultDetail {
@@ -42,7 +43,7 @@ export default function ResultPage() {
       const token = localStorage.getItem('access_token');
       if (!token) return navigate('/login');
       try {
-        const response = await fetch(`http://localhost:8000/api/tests/results/${historyId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/tests/results/${historyId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.status === 401) return navigate('/login');
@@ -70,7 +71,7 @@ export default function ResultPage() {
     setGradingQueue(prev => new Set(prev).add(detailId));
 
     try {
-      const response = await fetch(`http://localhost:8000/api/tests/results/${detailId}/grade`, {
+      const response = await fetch(`${API_BASE_URL}/api/tests/results/${detailId}/grade`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

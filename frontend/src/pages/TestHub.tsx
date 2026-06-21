@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { API_BASE_URL } from '../config';
 
 // --- INTERFACES ---
 interface TestItem {
@@ -43,7 +44,7 @@ export default function TestHub() {
       if (!token) return navigate('/login');
 
       try {
-        const response = await fetch('http://localhost:8000/api/tests/collections/all', {
+        const response = await fetch(`${API_BASE_URL}/api/tests/collections/all`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -77,7 +78,7 @@ export default function TestHub() {
     const token = localStorage.getItem('access_token');
 
     try {
-      const response = await fetch('http://localhost:8000/api/tests/generate', {
+      const response = await fetch(`${API_BASE_URL}/api/tests/generate`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,

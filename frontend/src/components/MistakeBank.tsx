@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 
 // Định nghĩa kiểu dữ liệu phẳng để dễ render
 interface GrammarCard {
@@ -24,7 +25,7 @@ export default function MistakeBank() {
       if (!token) return;
 
       try {
-        const response = await fetch('http://localhost:8000/api/mistakes', {
+        const response = await fetch(`${API_BASE_URL}/api/mistakes`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
