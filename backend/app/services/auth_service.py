@@ -1,15 +1,17 @@
-from app.services.supabase_client import supabase
+from app.services.supabase_client import create_fresh_client
 import asyncio
 
 def register_supabase_user(email: str, password: str, full_name: str):
-    return supabase.auth.sign_up({
+    auth_client = create_fresh_client()
+    return auth_client.auth.sign_up({
         "email": email,
         "password": password,
         "options": {"data": {"full_name": full_name}}
     })
 
 def login_supabase_user(email: str, password: str):
-    return supabase.auth.sign_in_with_password({
+    auth_client = create_fresh_client()
+    return auth_client.auth.sign_in_with_password({
         "email": email,
         "password": password
     })
