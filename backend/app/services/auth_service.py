@@ -1,4 +1,5 @@
 from app.services.supabase_client import supabase
+import asyncio
 
 def register_supabase_user(email: str, password: str, full_name: str):
     return supabase.auth.sign_up({
@@ -7,15 +8,12 @@ def register_supabase_user(email: str, password: str, full_name: str):
         "options": {"data": {"full_name": full_name}}
     })
 
-def verify_supabase_otp(email: str, otp: str):
-    return supabase.auth.verify_otp({
-        "email": email,
-        "token": otp,
-        "type": "signup"
-    })
-
 def login_supabase_user(email: str, password: str):
     return supabase.auth.sign_in_with_password({
         "email": email,
         "password": password
     })
+
+async def send_welcome_email_task(email: str, full_name: str):
+    await asyncio.sleep(2)
+    print(f"📧 [EMAIL SENT] Đã gửi thư chào mừng tới {full_name} ({email})!")

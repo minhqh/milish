@@ -1,28 +1,27 @@
-from fastapi import APIRouter, HTTPException
-from app.schemas.auth import RegisterRequest, VerifyOTPRequest, LoginRequest
-from app.services.auth_service import register_supabase_user, verify_supabase_otp, login_supabase_user
+from fastapi import APIRouter, HTTPException, BackgroundTasks
+from app.schemas.auth import RegisterRequest, LoginRequest
+from app.services.auth_service import register_supabase_user, login_supabase_user, send_welcome_email_task
 
 router = APIRouter()
 
 @router.post("/register")
-async def register(req: RegisterRequest):
+async def register(req: RegisterRequest, background_tasks: BackgroundTasks):
     try:
-        register_supabase_user(req.email, req.password, req.full_name)
-        return {"status": "success", "message": "Vui lòng kiểm tra email để lấy mã OTP"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        res = register_supabase_user(req.email, req.password, req.full_name)
 
-@router.post("/verify-otp")
-async def verify_otp(req: VerifyOTPRequest):
-    try:
-        res = verify_supabase_otp(req.email, req.otp)
+        background_tasks.add_task(send_welcome_email_task, req.email, req.full_name)
+
         return {
             "status": "success", 
-            "user_id": res.user.id, 
+            "message": "Đăng ký thành công!",
+            "user_id": res.user.id,
             "access_token": res.session.access_token
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail="OTP không hợp lệ!")
+        error_msg = str(e)
+        if "User already registered" in error_msg:
+            raise HTTPException(status_code=400, detail="Email này đã được sử dụng. Vui lòng đăng nhập!")
+        raise HTTPException(status_code=400, detail=error_msg)
 
 @router.post("/login")
 async def login(req: LoginRequest):
