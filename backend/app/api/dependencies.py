@@ -35,9 +35,10 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             token,
             signing_key.key,
             algorithms=["ES256"],
-            options={"verify_aud": False}
+            options={"verify_aud": False},
+            leeway=10,
         )
-        
+
         return payload.get("sub")
         
     except Exception as e:
