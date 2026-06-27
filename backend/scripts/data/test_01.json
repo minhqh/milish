@@ -1,0 +1,25 @@
+[
+  {
+    "test_code": "TC01",
+    "skill": "speaking",
+    "part_type": "read_aloud",
+    "topic": "Daily Life",
+    "content": {
+      "text": "Attention all passengers waiting for flight 822 to Tokyo. The departure gate has been changed to gate 45. Please have your boarding passes ready.",
+      "prep_time": 45,
+      "resp_time": 45
+    }
+  },
+  {
+    "test_code": "TC01",
+    "skill": "speaking",
+    "part_type": "describe_picture",
+    "topic": "Workplace",
+    "content": {
+      "text": "Describe the picture on your screen in as much detail as you can.",
+      "image_url": "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800",
+      "prep_time": 45,
+      "resp_time": 30
+    }
+  }
+]

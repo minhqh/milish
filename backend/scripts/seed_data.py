@@ -1,69 +1,54 @@
-import asyncio
+import json
+from pathlib import Path
 from app.services.supabase_client import supabase
 
-# Dữ liệu mẫu bám sát format TOEIC thực tế
-SAMPLE_QUESTIONS = [
-    # --- TOEIC SPEAKING ---
-    {
-        "skill": "speaking",
-        "part_type": "read_aloud",
-        "topic": "Daily Life",
-        "content": {
-            "text": "Attention all passengers waiting for flight 822 to Tokyo. The departure gate has been changed to gate 45. Please have your boarding passes ready.",
-            "prep_time": 45,
-            "resp_time": 45
-        }
-    },
-    {
-        "skill": "speaking",
-        "part_type": "describe_picture",
-        "topic": "Workplace",
-        "content": {
-            "text": "Describe the picture on your screen in as much detail as you can.",
-            "image_url": "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80&w=800",
-            "prep_time": 45,
-            "resp_time": 30
-        }
-    },
-    # --- TOEIC WRITING ---
-    {
-        "skill": "writing",
-        "part_type": "write_essay",
-        "topic": "Technology",
-        "content": {
-            "text": "Some people believe that technology has made our lives too complex and that we should live a simpler life without it. To what extent do you agree or disagree? Give specific reasons or examples to support your opinion.",
-            "prep_time": 0,
-            "resp_time": 1800 # 30 phút
-        }
-    },
-    {
-        "skill": "writing",
-        "part_type": "respond_to_email",
-        "topic": "Workplace",
-        "content": {
-            "text": "From: HR Department\nTo: All Employees\nSubject: Annual Team Building Event\n\nWe are planning the annual team-building event for next month. We would like your suggestions on activities and locations.\n\nDirections: Respond to the email. In your email, give AT LEAST TWO suggestions for activities and ONE suggestion for a location.",
-            "prep_time": 0,
-            "resp_time": 600 # 10 phút
-        }
-    }
-]
+# Trỏ đường dẫn tới thư mục chứa các file json (backend/scripts/data)
+DATA_DIR = Path(__file__).parent / "data"
+
+def load_json_files():
+    """Đọc toàn bộ file .json trong thư mục data và gom lại thành một list duy nhất."""
+    all_questions = []
+    if not DATA_DIR.exists():
+        print(f"❌ Không tìm thấy thư mục: {DATA_DIR}")
+        return all_questions
+
+    for json_file in DATA_DIR.glob("*.json"):
+        with open(json_file, 'r', encoding='utf-8') as f:
+            try:
+                data = json.load(f)
+                if isinstance(data, list):
+                    all_questions.extend(data)
+                else:
+                    print(f"⚠️ Cảnh báo: File {json_file.name} không phải là một danh sách JSON hợp lệ.")
+            except json.JSONDecodeError as e:
+                print(f"❌ Lỗi cú pháp JSON ở file {json_file.name}: {e}")
+                
+    return all_questions
 
 def seed_database():
-    print("🚀 Bắt đầu nạp dữ liệu vào question_bank...")
+    print("🚀 Bắt đầu đọc dữ liệu từ các file JSON...")
+    questions = load_json_files()
     
-    success_count = 0
-    for q in SAMPLE_QUESTIONS:
-        try:
-            # Ghi vào Supabase
-            supabase.table("question_bank").insert(q).execute()
-            success_count += 1
-            print(f"✅ Đã nạp: [{q['skill'].upper()}] - {q['part_type']}")
-        except Exception as e:
-            print(f"❌ Lỗi khi nạp câu hỏi: {repr(e)}")
+    if not questions:
+        print("📭 Không có dữ liệu để nạp. Hãy kiểm tra lại thư mục data/.")
+        return
+
+    print(f"📦 Tìm thấy tổng cộng {len(questions)} câu hỏi. Đang tiến hành nạp vào Supabase...")
+    
+    for q in questions:
+        if "test_code" in q:
+            del q["test_code"]
             
-    print(f"🎉 Hoàn tất! Nạp thành công {success_count}/{len(SAMPLE_QUESTIONS)} câu hỏi.")
+    try:
+        # Supabase Python SDK hỗ trợ chèn một list các dicts cùng lúc (Batch Insert)
+        # Điều này nhanh hơn rất nhiều so với việc lặp qua từng câu
+        response = supabase.table("question_bank").insert(questions).execute()
+        
+        # Nếu không có lỗi văng ra (Exception), việc nạp đã thành công
+        print(f"🎉 Hoàn tất! Đã nạp thành công {len(response.data)} câu hỏi vào DB.")
+        
+    except Exception as e:
+         print(f"❌ Lỗi nghiêm trọng khi nạp dữ liệu vào database: {repr(e)}")
 
 if __name__ == "__main__":
     seed_database()
-
-# python -m scripts.seed_data

@@ -7,6 +7,21 @@ from app.services.supabase_client import supabase
 from app.services.storage_service import upload_audio_to_supabase
 from app.schemas.test import GenerateTestRequest, SubmitTestRequest
 
+TOEIC_PART_ORDER = {
+    # Speaking (1 -> 6)
+    "read_aloud": 1,
+    "describe_picture": 2,
+    "respond_to_questions": 3,
+    "respond_to_questions_with_info": 4,
+    "propose_solution": 5,
+    "express_opinion": 6,
+    
+    # Writing (7 -> 9)
+    "write_sentence_based_on_picture": 7,
+    "respond_to_email": 8,
+    "write_essay": 9
+}
+
 class TestService:
     @staticmethod
     def generate_custom_test(request: GenerateTestRequest, user_id: str) -> str:
@@ -26,6 +41,9 @@ class TestService:
             
             selected_count = min(request.question_count, len(matching_questions))
             selected_questions = random.sample(matching_questions, selected_count)
+            selected_questions.sort(
+                key=lambda q: TOEIC_PART_ORDER.get(q.get("part_type"), 99)
+            )
             
             current_time = datetime.now().strftime('%d/%m/%Y %H:%M')
             new_test_res = supabase.table("tests").insert({

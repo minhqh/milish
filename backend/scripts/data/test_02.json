@@ -1,0 +1,56 @@
+[
+{
+"test_code": "TC02",
+"skill": "speaking",
+"part_type": "read_aloud",
+"topic": "Workplace",
+"content": {
+"text": "Attention all employees. The company will conduct a fire safety drill this Friday at 10 a.m. During the drill, please follow the instructions of your floor supervisor and proceed calmly to the designated exit. The exercise is expected to last approximately twenty minutes. Thank you for your cooperation in helping maintain a safe workplace.",
+"prep_time": 45,
+"resp_time": 45
+}
+},
+{
+"test_code": "TC02",
+"skill": "speaking",
+"part_type": "describe_picture",
+"topic": "Travel",
+"content": {
+"text": "Describe everything you see in the picture. Include the people, activities, location, and any details that help explain the scene.",
+"image_url": "[https://images.unsplash.com/photo-1507525428034-b723cf961d3e](https://images.unsplash.com/photo-1507525428034-b723cf961d3e)",
+"prep_time": 45,
+"resp_time": 30
+}
+},
+{
+"test_code": "TC02",
+"skill": "speaking",
+"part_type": "respond_to_questions",
+"topic": "Work Experience",
+"content": {
+"text": "What do you enjoy most about your current job or studies, and why?",
+"prep_time": 3,
+"resp_time": 30
+}
+},
+{
+"test_code": "TC02",
+"skill": "writing",
+"part_type": "respond_to_email",
+"topic": "Customer Service",
+"content": {
+"text": "You work for a hotel. Read the following email and respond.\n\nDear Customer Service Team,\n\nI stayed at your hotel from July 10 to July 12. Although the room was clean, the air conditioner was not working properly, and I reported the issue twice without receiving assistance. I am disappointed with the service and would like to know whether any compensation is available.\n\nPlease explain what happened and what can be done to resolve this matter.\n\nSincerely,\nDavid Kim\n\nIn your response, apologize for the inconvenience, explain the situation, and offer an appropriate solution.",
+"resp_time": 600
+}
+},
+{
+"test_code": "TC02",
+"skill": "writing",
+"part_type": "write_essay",
+"topic": "Remote Work",
+"content": {
+"text": "Do you agree or disagree with the following statement? Employees are more productive when they work from home than when they work in a traditional office. Write an essay of at least 300 words. Support your opinion with reasons, examples, and personal experiences if appropriate.",
+"resp_time": 1800
+}
+}
+]
